@@ -5,9 +5,12 @@ import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.util.treeView.IndexComparator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.wm.StatusBar;
+import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.*;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -83,14 +86,19 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
             super(aParent);
             myName = name;
         }
+
+        protected NamedNode(Project project, SimpleNode aParent, String name) {
+            super(project, aParent);
+            myName = name;
+        }
     }
 
     public class RootNode extends NamedNode {
-        Project project;
-        FileNode activeNode;
+        private Project project;
+        private FileNode activeNode;
 
         public RootNode(Project project) {
-            super(null, "Root");
+            super(project, null, "Root");
             this.project = project;
         }
 
@@ -155,11 +163,6 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
             PresentationData presentation = getPresentation();
             presentation.clear();
             presentation.addText(myName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-            if (state == ACTIVE) {
-                presentation.addText(" [active]", new SimpleTextAttributes(Font.PLAIN, Color.RED));
-            } else {
-                presentation.addText("                   ", SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES);
-            }
         }
 
         @Override
@@ -177,15 +180,20 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
         }
 
         void setState(EnvironmentSate state) {
+            this.state = state;
             if (state == ACTIVE) {
                 FileNode rootActiveChildNode = rootNode.getActiveNode();
-                if (rootActiveChildNode != null) {
+                if (rootActiveChildNode != null && rootActiveChildNode != this) {
                     rootActiveChildNode.setState(INACTIVE);
                     rootActiveChildNode.updatePresentation();
                 }
                 rootNode.setActiveNode(this);
+                StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
+                EnvStatusBarWidget widget = (EnvStatusBarWidget) statusBar.getWidget(EnvStatusBarWidget.class.getName());
+                if (widget != null) {
+                    ((JLabel) widget.getComponent()).setText(" [" + this.getName() + "] ");
+                }
             }
-            this.state = state;
             updatePresentation();
         }
     }

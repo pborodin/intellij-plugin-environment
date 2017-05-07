@@ -5,13 +5,16 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.ToolWindowAnchor;
+import com.intellij.openapi.wm.WindowManager;
 import com.intellij.openapi.wm.ex.ToolWindowEx;
 import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
+import ui.EnvStatusBarWidget;
 import ui.EnvironmentPanel;
 
 public class ProcessesManager extends AbstractProjectComponent {
@@ -36,5 +39,9 @@ public class ProcessesManager extends AbstractProjectComponent {
         final Content content = contentFactory.createContent(panel, "", false);
         ContentManager contentManager = myToolWindow.getContentManager();
         contentManager.addContent(content);
+
+        StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
+        statusBar.addWidget(new EnvStatusBarWidget(), "after Encoding");
+
     }
 }
