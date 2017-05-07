@@ -1,0 +1,51 @@
+<idea-plugin>
+    <id>org.pborodin.intellij.plugin.environment</id>
+    <name>Environment</name>
+    <version>1.0</version>
+    <vendor email="pborodin@mail.ru" url="http://www.yourcompany.com">YourCompany</vendor>
+
+    <description><![CDATA[
+      Plugin for quick select environments.<br>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      Toolbar panel was added.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="145.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <project-components>
+        <component>
+            <implementation-class>model.ProcessesManager</implementation-class>
+        </component>
+    </project-components>
+
+    <actions>
+        <action id="Environment.Refresh" class="action.RefreshEnvironmentsAction"
+                text="Refresh" description="Refresh environments" icon="AllIcons.Actions.Refresh"/>
+        <action id="Environment.ExpandAll" class="ui.ProcessesTreeAction$ExpandAll" text="Expand All"
+                icon="AllIcons.Actions.Expandall"/>
+        <action id="Environment.CollapseAll" class="ui.ProcessesTreeAction$CollapseAll" text="Collapse All"
+                icon="AllIcons.Actions.Collapseall"/>
+        <group id="Environment.ProcessesToolbar">
+            <reference id="Environment.Refresh"/>
+            <separator/>
+            <reference id="Environment.ExpandAll"/>
+            <reference id="Environment.CollapseAll"/>
+        </group>
+    </actions>
+
+</idea-plugin>
