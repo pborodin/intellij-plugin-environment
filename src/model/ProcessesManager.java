@@ -17,6 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import ui.EnvStatusBarWidget;
 import ui.EnvironmentPanel;
 
+import java.io.*;
+import java.util.Properties;
+
 public class ProcessesManager extends AbstractProjectComponent {
     private final EnvironmentPanel panel;
 
@@ -41,7 +44,7 @@ public class ProcessesManager extends AbstractProjectComponent {
         contentManager.addContent(content);
 
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
-        statusBar.addWidget(new EnvStatusBarWidget(), "after Encoding");
+        statusBar.addWidget(new EnvStatusBarWidget(Util.loadAppEnvProperty(myProject)), "after Encoding");
 
     }
 }

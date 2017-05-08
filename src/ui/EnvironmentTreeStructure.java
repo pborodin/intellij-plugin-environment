@@ -9,6 +9,7 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.treeStructure.*;
+import model.Util;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
@@ -40,6 +41,7 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
         Disposer.register(project, myTreeBuilder);
         myTreeBuilder.initRoot();
         myTreeBuilder.expand(rootNode, null);
+        tree.updateUI();
     }
 
     private void configureTree(final SimpleTree tree) {
@@ -96,10 +98,12 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
     public class RootNode extends NamedNode {
         private Project project;
         private FileNode activeNode;
+        private String selectedEnvironment;
 
         public RootNode(Project project) {
             super(project, null, "Root");
             this.project = project;
+            this.selectedEnvironment = Util.loadAppEnvProperty(project);
         }
 
         @Override
@@ -115,6 +119,14 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
 
         public void setActiveNode(FileNode activeNode) {
             this.activeNode = activeNode;
+        }
+
+        public String getSelectedEnvironment() {
+            return selectedEnvironment;
+        }
+
+        public void setSelectedEnvironment(String selectedEnvironment) {
+            this.selectedEnvironment = selectedEnvironment;
         }
     }
 
@@ -156,6 +168,10 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
         public FileNode(SimpleNode aParent, String name) {
             super(aParent, name);
             myName = myName.replace(".properties", "");
+            if(rootNode.getSelectedEnvironment().equals(name)){
+                rootNode.activeNode = this;
+                state = ACTIVE;
+            }
             updatePresentation();
         }
 
@@ -188,6 +204,8 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
                     rootActiveChildNode.updatePresentation();
                 }
                 rootNode.setActiveNode(this);
+                rootNode.setSelectedEnvironment(myName);
+                Util.saveAppEnvProperty(myProject, myName);
                 StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
                 EnvStatusBarWidget widget = (EnvStatusBarWidget) statusBar.getWidget(EnvStatusBarWidget.class.getName());
                 if (widget != null) {

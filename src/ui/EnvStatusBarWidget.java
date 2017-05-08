@@ -12,7 +12,11 @@ import javax.swing.*;
  */
 public class EnvStatusBarWidget implements CustomStatusBarWidget {
     public static final String id = EnvStatusBarWidget.class.getName();
-    private JLabel myLabel = new JLabel(" [sbrf.rtk.proxy] ");
+    private JLabel myLabel = new JLabel(" [undefined] ");
+
+    public EnvStatusBarWidget(String labelText) {
+        this.myLabel.setText(" [" + labelText + "] ");
+    }
 
     @Override
     public JComponent getComponent() {
