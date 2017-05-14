@@ -45,6 +45,5 @@ public class ProcessesManager extends AbstractProjectComponent {
 
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
         statusBar.addWidget(new EnvStatusBarWidget(Util.loadAppEnvProperty(myProject)), "after Encoding");
-
     }
 }

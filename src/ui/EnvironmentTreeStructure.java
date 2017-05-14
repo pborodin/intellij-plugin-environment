@@ -14,7 +14,6 @@ import model.Util;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.awt.event.InputEvent;
 import java.io.File;
 import java.util.Comparator;
@@ -25,8 +24,10 @@ import static ui.EnvironmentSate.INACTIVE;
 public class EnvironmentTreeStructure extends SimpleTreeStructure {
     private final RootNode rootNode;
     private final SimpleTreeBuilder myTreeBuilder;
+    private final SimpleTree tree;
 
     public EnvironmentTreeStructure(Project project, SimpleTree tree) {
+        this.tree = tree;
         this.rootNode = new RootNode(project);
         myTreeBuilder = new SimpleTreeBuilder(tree, (DefaultTreeModel) tree.getModel(), this, new Comparator<SimpleNode>() {
             @Override
@@ -39,6 +40,12 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
         });
         configureTree(tree);
         Disposer.register(project, myTreeBuilder);
+        myTreeBuilder.initRoot();
+        myTreeBuilder.expand(rootNode, null);
+        tree.updateUI();
+    }
+
+    public void updateTreeFromProject() {
         myTreeBuilder.initRoot();
         myTreeBuilder.expand(rootNode, null);
         tree.updateUI();
@@ -66,6 +73,7 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
             @Override
             public MavenUIUtil.CheckBoxState getState(Object userObject) {
                 EnvironmentSate state = ((FileNode) userObject).getState();
+                System.out.println("MavenUIUtil.CheckBoxState for " + ((FileNode) userObject).getName());
                 switch (state) {
                     case INACTIVE:
                         return MavenUIUtil.CheckBoxState.UNCHECKED;
@@ -110,6 +118,7 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
         protected SimpleNode[] buildChildren() {
             if (project == null) return new SimpleNode[0];
             File folder = new File(project.getBasePath() + "/src/main/resources/environments");
+            System.out.println("RootNode buildChildren(); " + myName);
             return buildNodes(folder, this);
         }
 
@@ -141,7 +150,12 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
             if (files[i].isDirectory()) {
                 nodes[i] = new FolderNode(parentNode, files[i].getName(), files[i]);
             } else {
-                nodes[i] = new FileNode(parentNode, files[i].getName());
+                FileNode fileNode = new FileNode(parentNode, files[i].getName());
+                nodes[i] = fileNode;
+                if (rootNode.getSelectedEnvironment().equals(fileNode.getName())) {
+                    rootNode.setActiveNode(fileNode);
+                    fileNode.setInitState(ACTIVE);
+                }
             }
         }
         return nodes;
@@ -152,12 +166,14 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
 
         public FolderNode(SimpleNode aParent, String name, File folder) {
             super(aParent, name);
+            System.out.println("FolderNode construstor(); " + name);
             this.folder = folder;
             myClosedIcon = AllIcons.Nodes.Folder;
         }
 
         @Override
         protected SimpleNode[] buildChildren() {
+            System.out.println("FolderNode buildChildren(); " + myName);
             return buildNodes(folder, this);
         }
     }
@@ -168,10 +184,7 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
         public FileNode(SimpleNode aParent, String name) {
             super(aParent, name);
             myName = myName.replace(".properties", "");
-            if(rootNode.getSelectedEnvironment().equals(name)){
-                rootNode.activeNode = this;
-                state = ACTIVE;
-            }
+            System.out.println("FileNode construstor(); " + name);
             updatePresentation();
         }
 
@@ -213,6 +226,10 @@ public class EnvironmentTreeStructure extends SimpleTreeStructure {
                 }
             }
             updatePresentation();
+        }
+
+        void setInitState(EnvironmentSate state) {
+            this.state = state;
         }
     }
 }

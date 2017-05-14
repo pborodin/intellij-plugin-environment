@@ -26,9 +26,8 @@ public class EnvironmentPanel extends SimpleToolWindowPanel {
         setToolbar(actionToolbar.getComponent());
         myTree = new SimpleTree();
         myTree.setRootVisible(false);
-        myStructure = new EnvironmentTreeStructure(project,myTree);
+        myStructure = new EnvironmentTreeStructure(project, myTree);
         setContent(ScrollPaneFactory.createScrollPane(myTree));
-
     }
 
     @Nullable
